@@ -1,0 +1,4 @@
+from app.models.user_model import User
+from app.models.movie_model import Movie
+from app.models.rating_model import Rating
+from app.models.personality_model import Personality
