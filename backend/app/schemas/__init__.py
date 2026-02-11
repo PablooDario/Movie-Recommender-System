@@ -1,0 +1,1 @@
+from app.schemas.movie_schema import MovieResponse
