@@ -1,3 +1,4 @@
+import  re
 import random
 from sqlalchemy.orm import Session
 from app.models import Movie
@@ -20,3 +21,15 @@ class MovieService:
         )
         
         return random.sample(movies, 20)
+
+    def search_movies(self, query: str) -> list[Movie] | None:
+        query = query.strip() # Remove extra spaces at the beginning and end
+        query = re.sub(r'\s+', ' ', query) # Replace multiple spaces with a single space
+
+        return (
+            self.db.query(Movie)
+            .filter(Movie.title.ilike(f"%{query}%"))  # Incase sensitive
+            .order_by(Movie.vote_average.desc())
+            .limit(20)
+            .all()
+        )

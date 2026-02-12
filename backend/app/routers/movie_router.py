@@ -20,3 +20,12 @@ def read_movie(movie_id: int, db: Session = Depends(get_db)):
     if not movie:
         raise HTTPException(status_code=404, detail="Movie not found")
     return movie
+
+
+@router.get("/search/", response_model=list[MovieResponse])
+def search_movies(query: str, db: Session = Depends(get_db)):
+    try:
+        movie_service = MovieService(db)
+        return movie_service.search_movies(query)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
