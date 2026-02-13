@@ -28,9 +28,31 @@ CREATE TABLE IF NOT EXISTS movies (
     runtime INT,
     tagline VARCHAR(256),
     director VARCHAR(64),
-    cast JSON,
     poster_path VARCHAR(64),
     backdrop_path VARCHAR(64)
+);
+
+-- =========================
+-- ACTORS
+-- =========================
+CREATE TABLE IF NOT EXISTS actors (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    tmdb_id INT UNIQUE,
+    name VARCHAR(64) NOT NULL,
+    profile_path VARCHAR(64)
+);
+
+-- =========================
+-- MOVIE_ACTORS
+-- =========================
+CREATE TABLE IF NOT EXISTS movie_actors (
+    movie_id INT,
+    actor_id INT,
+    PRIMARY KEY (movie_id, actor_id),
+    FOREIGN KEY (movie_id) REFERENCES movies(id)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (actor_id) REFERENCES actors(id)
+        ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- =========================
