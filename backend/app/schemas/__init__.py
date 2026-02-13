@@ -1,1 +1,2 @@
-from app.schemas.movie_schema import MovieResponse
+from app.schemas.movie_schema import MovieResponse, MovieWithoutActorsResponse
+from app.schemas.actor_schema import ActorResponse
