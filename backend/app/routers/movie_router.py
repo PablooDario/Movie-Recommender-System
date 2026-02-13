@@ -2,12 +2,12 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.services.movie_service import MovieService
 from app.db.session import get_db
-from app.schemas.movie_schema import MovieResponse
+from app.schemas.movie_schema import MovieResponse, MovieWithoutActorsResponse
 
 router = APIRouter(prefix="/movies", tags=["movies"])
 
 
-@router.get("/", response_model=list[MovieResponse])
+@router.get("/", response_model=list[MovieWithoutActorsResponse])
 def read_popular_movies(db: Session = Depends(get_db)):
     movie_service = MovieService(db)
     return movie_service.get_popular_movies()
@@ -22,7 +22,7 @@ def read_movie(movie_id: int, db: Session = Depends(get_db)):
     return movie
 
 
-@router.get("/search/", response_model=list[MovieResponse])
+@router.get("/search/", response_model=list[MovieWithoutActorsResponse])
 def search_movies(query: str, db: Session = Depends(get_db)):
     try:
         movie_service = MovieService(db)
