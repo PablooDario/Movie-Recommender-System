@@ -1,64 +1,78 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Play } from 'lucide-react';
 
-const HeroSection = ({ backdropPath, imageBaseUrl }) => {
-  const navigate = useNavigate();
-
-  const handleGetStarted = () => {
-    navigate('/login?mode=register');
-  };
+const HeroSection = ({ backdropPath, imageBaseUrl, onGetStarted }) => {
+  const backdropUrl = backdropPath 
+    ? `${imageBaseUrl}/original${backdropPath}` 
+    : '/placeholder-backdrop.jpg';
 
   return (
-    <div className="relative h-screen w-full overflow-hidden">
+    <div className="relative h-[85vh] overflow-hidden">
       {/* Background Image with Overlay */}
-      <div
-        className="absolute inset-0 sm-cover bg-center"
-        style={{
-          backgroundImage: backdropPath 
-            ? `url(${imageBaseUrl}/original${backdropPath})`
-            : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-        }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-900/70 via-slate-900/50 to-slate-900"></div>
+      <div className="absolute inset-0">
+        <img
+          src={backdropUrl}
+          alt="Hero backdrop"
+          className="w-full h-full object-cover"
+          onError={(e) => {
+            e.target.src = '/placeholder-backdrop.jpg';
+          }}
+        />
+        {/* Dark gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0e1a] via-[#0a0e1a]/70 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0a0e1a]/90 via-transparent to-[#0a0e1a]/50" />
       </div>
 
-      {/* Hero Content */}
-      <div className="relative h-full flex items-center justify-center px-4">
-        <div className="max-w-4xl text-center animate-fade-in">
-          <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
-            Bienvenido.
-          </h1>
-          <p className="text-xl md:text-2xl text-gray-200 mb-4 leading-relaxed">
-            Miles de películas. Poco tiempo para explorarlas.
-          </p>
-          <p className="text-xl md:text-2xl text-gray-200 mb-8 leading-relaxed">
-            Deja que la <span className="text-purple-400 font-semibold">inteligencia artificial</span> te recomiende las historias que realmente encajan contigo.
-          </p>
-          <button 
-            onClick={handleGetStarted}
-            className="px-8 py-4 bg-purple-600 hover:bg-purple-700 text-white text-lg font-semibold rounded-full transition-all transform hover:scale-105 shadow-lg"
-          >
-            Comenzar ahora
-          </button>
+      {/* Content */}
+      <div className="relative h-full flex items-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+          <div className="max-w-3xl">
+
+            {/* Main Heading */}
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
+              Descubre películas que{' '}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
+                realmente amarás
+              </span>
+            </h1>
+
+            {/* Description */}
+            <p className="text-xl text-gray-300 mb-10 leading-relaxed">
+              Recomendaciones personalizadas basadas en tu personalidad y gustos únicos. 
+              Deja que la inteligencia artificial encuentre tu próxima película favorita.
+            </p>
+
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4">
+              <button 
+                onClick={onGetStarted}
+                className="group relative px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-semibold rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/50"
+              >
+                <span className="flex items-center justify-center gap-2">
+                  Comenzar ahora
+                  <Play className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </span>
+              </button>
+            </div>
+
+            {/* Stats */}
+            <div className="flex flex-wrap gap-8 mt-12 pt-12 border-t border-slate-800">
+              <div>
+                <div className="text-3xl font-bold text-white mb-1">5000+</div>
+                <div className="text-sm text-gray-400">Películas disponibles</div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold text-white mb-1">98%</div>
+                <div className="text-sm text-gray-400">Precisión en recomendaciones</div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold text-white mb-1">24/7</div>
+                <div className="text-sm text-gray-400">Descubrimiento continuo</div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-
-      <style jsx>{`
-        @keyframes fade-in {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        .animate-fade-in {
-          animation: fade-in 1s ease-out;
-        }
-      `}</style>
     </div>
   );
 };
