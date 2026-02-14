@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import HeroSection from '../components/HeroSection';
 import MovieCarousel from '../components/Movie/MovieCarousel';
 import { getPopularMovies, getRandomBackdrop } from '../services/movie.service';
 
 const Home = () => {
+  const navigate = useNavigate();
   const [heroBackdrop, setHeroBackdrop] = useState(null);
   const [popularMovies, setPopularMovies] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -29,9 +31,17 @@ const Home = () => {
 
   const imageBaseUrl = 'https://image.tmdb.org/t/p';
 
+  const handleGetStarted = () => {
+    navigate('/login');
+  };
+
   return (
     <>
-      <HeroSection backdropPath={heroBackdrop} imageBaseUrl={imageBaseUrl} />
+      <HeroSection 
+        backdropPath={heroBackdrop} 
+        imageBaseUrl={imageBaseUrl}
+        onGetStarted={handleGetStarted}
+      />
 
       {loading ? (
         <div className="flex items-center justify-center py-20">
