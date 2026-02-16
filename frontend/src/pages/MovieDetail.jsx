@@ -2,18 +2,47 @@ import React, { useState, useEffect } from 'react';
 import { getMovieDetails } from '../services/movie.service';
 import { useParams } from 'react-router-dom';
 import MovieCard from '../components/Movie/MovieCard';
+import RatingStars from '../components/Movie/RatingStars';
+import LoginService from '../services/login.service';
+import RatingService from '../services/rating.service';
 
 const MovieDetail = () => {
   const { id } = useParams();
   const [movie, setMovie] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [userRating, setUserRating] = useState(0);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userId, setUserId] = useState(null);
   const imageBaseUrl = 'https://image.tmdb.org/t/p';
+
+  useEffect(() => {
+    const checkAuth = () => {
+      const authenticated = LoginService.isAuthenticated();
+      const currentUserId = LoginService.getUserId();
+      setIsLoggedIn(authenticated);
+      setUserId(currentUserId);
+    };
+
+    checkAuth();
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const movie_details = await getMovieDetails(id);
         setMovie(movie_details);
+
+        if (isLoggedIn && userId) {
+          const rating = await RatingService.getUserRating(userId, id);
+          if (rating) {
+            setUserRating(rating.rating);
+          } else {
+            setUserRating(0);
+          }
+        } else {
+          setUserRating(0);
+        }
+
         setLoading(false);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -22,7 +51,20 @@ const MovieDetail = () => {
     };
 
     fetchData();
-  }, [id]);
+  }, [id, isLoggedIn, userId]);
+
+  const handleRate = async (rating) => {
+    if (!isLoggedIn || !userId) {
+      return;
+    }
+
+    try {
+      await RatingService.createOrUpdateRating(userId, id, rating);
+      setUserRating(rating);
+    } catch (error) {
+      console.error('Error saving rating:', error);
+    }
+  };
 
   if (loading) {
     return (
@@ -42,7 +84,6 @@ const MovieDetail = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 via-purple-900/20 to-gray-900">
-      {/* Backdrop Background */}
       <div className="relative">
         <div className="absolute inset-0 h-[800px] overflow-hidden">
           <div 
@@ -57,15 +98,12 @@ const MovieDetail = () => {
           <div className="absolute inset-0 bg-gradient-to-r from-gray-900 via-transparent to-gray-900/50" />
         </div>
 
-        {/* Content Container */}
         <div className="relative pt-24 px-4 pb-12">
           <div className="max-w-7xl mx-auto">
             <div className="flex flex-col md:flex-row gap-8">
-              {/* Movie Poster Card + Genres */}
               <div className="flex-shrink-0 md:w-96">
                 <MovieCard movie={movie} imageBaseUrl={imageBaseUrl} />
                 
-                {/* Genres below poster */}
                 {movie.genres && movie.genres.length > 0 && (
                   <div className="mt-6">
                     <h3 className="text-xl font-semibold mb-3 text-white">Géneros</h3>
@@ -83,9 +121,7 @@ const MovieDetail = () => {
                 )}
               </div>
 
-              {/* Movie Info */}
               <div className="flex-1 text-white pt-4">
-                {/* Title */}
                 <h1 className="text-5xl font-bold mb-2">
                   {movie.title}
                   {movie.release_date && (
@@ -95,14 +131,12 @@ const MovieDetail = () => {
                   )}
                 </h1>
 
-                {/* Tagline */}
                 {movie.tagline && (
                   <p className="text-xl text-purple-300 italic mb-6">
                     "{movie.tagline}"
                   </p>
                 )}
 
-                {/* Rating and Vote Count */}
                 <div className="flex items-center gap-6 mb-6">
                   <div className="flex items-center gap-3">
                     <div className="w-16 h-16 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold text-xl shadow-lg">
@@ -116,7 +150,6 @@ const MovieDetail = () => {
                     </div>
                   </div>
 
-                  {/* Runtime */}
                   {movie.runtime && (
                     <div>
                       <div className="text-sm text-gray-400">Duración</div>
@@ -127,7 +160,6 @@ const MovieDetail = () => {
                   )}
                 </div>
 
-                {/* Director */}
                 {movie.director && (
                   <div className="mb-6">
                     <span className="text-gray-400">Dirigida por: </span>
@@ -135,17 +167,32 @@ const MovieDetail = () => {
                   </div>
                 )}
 
-                {/* Overview */}
                 <div className="mb-8">
                   <h2 className="text-2xl font-bold mb-3">Descripción</h2>
                   <p className="text-gray-300 text-lg leading-relaxed">
                     {movie.overview || 'No hay descripción disponible.'}
                   </p>
                 </div>
+
+                {isLoggedIn && (
+                  <div className="mb-8">
+                    <h2 className="text-2xl font-bold mb-3">Tu calificación</h2>
+                    <div>
+                      <RatingStars 
+                        rating={userRating} 
+                        onRate={handleRate}
+                      />
+                      <p className="text-gray-400 text-sm mt-3">
+                        {userRating > 0 
+                          ? 'Haz clic para cambiar tu calificación' 
+                          : 'Haz clic en las estrellas para calificar'}
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Cast Section */}
             {movie.actors && movie.actors.length > 0 && (
               <div className="mt-12">
                 <h2 className="text-3xl font-bold text-white mb-6">Reparto</h2>
